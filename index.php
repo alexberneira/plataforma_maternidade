@@ -87,8 +87,20 @@ $pdfs = $stmt->fetchAll();
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
+                        <a class="nav-link" href="index.php">Início</a>
+                    </li>
+                    <?php if (isset($_SESSION['user_email'])): ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="perfil.php">Perfil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="logout.php">Sair</a>
+                    </li>
+                    <?php else: ?>
+                    <li class="nav-item">
                         <a class="nav-link" href="login.php">Login</a>
                     </li>
+                    <?php endif; ?>
                 </ul>
             </div>
         </div>
