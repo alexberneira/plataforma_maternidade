@@ -1,4 +1,9 @@
 <?php
+// Configurações de encoding
+mb_internal_encoding('UTF-8');
+mb_http_output('UTF-8');
+mb_regex_encoding('UTF-8');
+
 // Inicia a sessão se ainda não estiver ativa
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -19,9 +24,15 @@ try {
         [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false
+            PDO::ATTR_EMULATE_PREPARES => false,
+            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
         ]
     );
+    
+    // Força o charset da conexão
+    $pdo->exec("SET CHARACTER SET utf8mb4");
+    $pdo->exec("SET NAMES utf8mb4");
+    $pdo->exec("SET collation_connection = utf8mb4_unicode_ci");
 } catch(PDOException $e) {
     // Em caso de erro, armazena a mensagem na sessão e redireciona para a página de erro
     $_SESSION['error'] = "Erro ao conectar com o banco de dados: " . $e->getMessage();
