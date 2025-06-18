@@ -1,4 +1,9 @@
 <?php
+// Configurações de encoding
+mb_internal_encoding('UTF-8');
+mb_http_output('UTF-8');
+mb_regex_encoding('UTF-8');
+
 require_once 'init.php';
 
 // Verifica se o usuário está logado
@@ -14,73 +19,258 @@ if (isset($_GET['logout'])) {
     exit;
 }
 
-// Busca os vídeos
-$stmt = $pdo->query("SELECT * FROM videos ORDER BY data_cadastro DESC");
-$videos = $stmt->fetchAll();
-
 // Busca os PDFs
-$stmt = $pdo->query("SELECT * FROM pdfs ORDER BY data_cadastro DESC");
-$pdfs = $stmt->fetchAll();
+$stmt = $pdo->query("SELECT * FROM pdfs ORDER BY created_at DESC");
+$pdfs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Função para limpar e converter texto
+function cleanText($text) {
+    // Converte para UTF-8 se não estiver
+    if (!mb_check_encoding($text, 'UTF-8')) {
+        $text = mb_convert_encoding($text, 'UTF-8', 'auto');
+    }
+    // Remove caracteres inválidos
+    $text = preg_replace('/[\x00-\x1F\x7F]/u', '', $text);
+    return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plataforma de Maternidade</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #FF6B6B;
+            --secondary-color: #4ECDC4;
+            --accent-color: #FFE66D;
+            --text-color: #2C3E50;
+            --light-bg: #F7F9FC;
+            --white: #FFFFFF;
+            --card-border: rgba(147, 112, 219, 0.15);
+        }
+
         body {
-            background-color: #f8f9fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-color);
+            line-height: 1.6;
         }
+
         .header {
-            background-color: #e83e8c;
-            color: white;
-            padding: 2rem 0;
-            margin-bottom: 2rem;
-        }
-        .card {
-            border: none;
-            border-radius: 15px;
+            background: linear-gradient(135deg, var(--primary-color), #FF8E8E);
+            color: var(--white);
+            padding: 3rem 0;
+            margin-bottom: 3rem;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-            margin-bottom: 2rem;
         }
+
+        .header h1 {
+            font-weight: 600;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .header p {
+            font-weight: 300;
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .navbar {
+            background-color: var(--white) !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            color: var(--primary-color) !important;
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+
+        .nav-link {
+            color: var(--text-color) !important;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-color) !important;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(147, 112, 219, 0.15);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .card h3 {
+            color: #2D3748;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .card p {
+            color: #718096;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
         .card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            border-color: rgba(147, 112, 219, 0.25);
         }
+
+        .card-body {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
         .card-title {
-            color: #e83e8c;
-            font-weight: bold;
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
         }
+
+        .card-text {
+            color: var(--text-color);
+            font-weight: 300;
+            margin-bottom: 1.5rem;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: auto;
+        }
+
+        .btn-primary:hover {
+            background-color: #FF5252;
+            border-color: #FF5252;
+            transform: translateY(-2px);
+        }
+
+        .section-title {
+            color: var(--text-color);
+            font-weight: 600;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background-color: var(--primary-color);
+        }
+
         .pdf-container {
             height: 600px;
             border: none;
-            border-radius: 10px;
+            border-radius: 15px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        .nav-link {
-            color: #e83e8c;
+
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+        }
+
+        .modal-header {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border-radius: 15px 15px 0 0;
+        }
+
+        .modal-title {
             font-weight: 500;
         }
-        .nav-link:hover {
-            color: #d63384;
+
+        .btn-close {
+            filter: brightness(0) invert(1);
         }
-        .btn-primary {
-            background-color: #e83e8c;
-            border-color: #e83e8c;
+
+        footer {
+            background-color: var(--white);
+            padding: 2rem 0;
+            margin-top: 4rem;
+            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.05);
         }
-        .btn-primary:hover {
-            background-color: #d63384;
-            border-color: #d63384;
+
+        footer p {
+            color: var(--text-color);
+            font-weight: 300;
+            margin: 0;
+        }
+
+        .color-demo {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .color-preview {
+            height: 120px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .color-preview .color-name {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: white;
+        }
+
+        .color-preview .color-code {
+            font-size: 0.9rem;
+            color: white;
+            font-family: monospace;
+            opacity: 0.9;
         }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container">
-            <a class="navbar-brand" href="#" style="color: #e83e8c; font-weight: bold;">Plataforma de Maternidade</a>
+            <a class="navbar-brand" href="#">Maternidade Conectada</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -108,67 +298,62 @@ $pdfs = $stmt->fetchAll();
 
     <div class="header">
         <div class="container">
-            <h1 class="display-4">Bem-vinda à Plataforma de Maternidade</h1>
-            <p class="lead">Informações e recursos importantes para sua gestação</p>
+            <h1>Bem-vinda à Maternidade Conectada</h1>
+            <p>Seu espaço de apoio e informação para uma gestação saudável e tranquila</p>
         </div>
     </div>
 
     <div class="container">
+        <h2 class="section-title">Materiais de Apoio</h2>
         <div class="row">
-            <div class="col-md-6">
-                <div class="card">
+            <?php foreach ($pdfs as $pdf): ?>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
                     <div class="card-body">
-                        <h5 class="card-title">Guia Pré-Natal</h5>
-                        <p class="card-text">Informações essenciais sobre o acompanhamento pré-natal, exames e cuidados durante a gestação.</p>
-                        <iframe src="pdfs/guia_pre_natal.pdf" class="pdf-container w-100"></iframe>
+                        <h5 class="card-title"><?php echo cleanText($pdf['titulo']); ?></h5>
+                        <p class="card-text"><?php echo cleanText($pdf['descricao']); ?></p>
+                        <button class="btn btn-primary" onclick="openPdfModal('pdfs/<?php echo cleanText($pdf['arquivo']); ?>', '<?php echo cleanText($pdf['titulo']); ?>')">Acessar Material</button>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Amamentação: Mitos e Verdades</h5>
-                        <p class="card-text">Guia completo sobre amamentação, desmistificando crenças populares e fornecendo informações científicas.</p>
-                        <iframe src="pdfs/amamentacao_mitos_verdades.pdf" class="pdf-container w-100"></iframe>
-                    </div>
-                </div>
-            </div>
+            <?php endforeach; ?>
         </div>
+    </div>
 
-        <div class="row mt-4">
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Alimentação na Gestação</h5>
-                        <p class="card-text">Dicas de alimentação saudável durante a gestação, incluindo alimentos recomendados e a evitar.</p>
-                    </div>
+    <!-- Modal para PDFs -->
+    <div class="modal fade" id="pdfModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Exercícios para Gestantes</h5>
-                        <p class="card-text">Exercícios seguros e recomendados para manter a saúde durante a gestação.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Preparação para o Parto</h5>
-                        <p class="card-text">Informações sobre os diferentes tipos de parto e como se preparar para o grande dia.</p>
-                    </div>
+                <div class="modal-body">
+                    <iframe src="" class="pdf-container w-100"></iframe>
                 </div>
             </div>
         </div>
     </div>
 
-    <footer class="bg-white mt-5 py-4">
+    <footer>
         <div class="container text-center">
-            <p class="text-muted">© 2024 Plataforma de Maternidade. Todos os direitos reservados.</p>
+            <p>© 2024 Maternidade Conectada. Todos os direitos reservados.</p>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function openPdfModal(url, title) {
+            const modal = new bootstrap.Modal(document.getElementById('pdfModal'));
+            document.querySelector('#pdfModal .modal-title').textContent = title;
+            document.querySelector('#pdfModal iframe').src = url;
+            modal.show();
+        }
+
+        document.getElementById('pdfModal').addEventListener('hidden.bs.modal', function () {
+            document.querySelector('#pdfModal iframe').src = '';
+        });
+    </script>
 </body>
 </html> 
+
