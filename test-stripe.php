@@ -92,7 +92,7 @@ foreach ($files as $file => $description) {
 // Teste 7: Verificar permissões
 echo "<h2>7. Verificação de Permissões</h2>";
 $dirs = [
-    'pdfs' => 'Diretório de PDFs',
+    'uploads' => 'Diretório de uploads',
     'logs' => 'Diretório de logs'
 ];
 

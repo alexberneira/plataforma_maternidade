@@ -29,7 +29,7 @@
         echo '<div class="status success">✅ <strong>Banco de dados conectado!</strong></div>';
         
         // Verificar tabelas
-        $tables = ['usuarios', 'pdfs', 'assinaturas', 'pagamentos_recorrentes'];
+        $tables = ['usuarios', 'assinaturas', 'pagamentos_recorrentes', 'posts'];
         foreach ($tables as $table) {
             $stmt = $pdo->query("SHOW TABLES LIKE '$table'");
             if ($stmt->rowCount() > 0) {

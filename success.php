@@ -209,7 +209,7 @@ if (isset($_GET['session_id'])) {
                                 <div class="step-number">1</div>
                                 <div>
                                     <strong>Acesse todos os conteúdos</strong><br>
-                                    Explore os PDFs e vídeos disponíveis na plataforma
+                                    Explore os posts exclusivos sobre maternidade na plataforma
                                 </div>
                             </div>
                             

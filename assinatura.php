@@ -256,8 +256,7 @@ if (isset($_GET['canceled'])) {
                     </div>
 
                     <ul class="features">
-                        <li>Acesso a todos os PDFs</li>
-                        <li>Vídeos exclusivos</li>
+                        <li>Posts exclusivos sobre maternidade</li>
                         <li>Conteúdo atualizado</li>
                         <li>Suporte especializado</li>
                         <li>Cancelamento a qualquer momento</li>
