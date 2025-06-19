@@ -1,0 +1,22 @@
+name: Deploy PHP para KingHost via FTP
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ftp.maternidade.art.br
+          username: maternidade
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: /www/ # ou a pasta raiz do KingHost
