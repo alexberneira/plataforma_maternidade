@@ -37,17 +37,3 @@ jobs:
             **/logs/**
           dangerous-clean-slate: false
           log-level: verbose
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            **/.github/**
-            **/README.md
-            **/Dockerfile
-            **/docker-compose.yml
-            **/deploy.sh
-            **/TRIAL_SYSTEM.md
-            **/temp.sql
-            **/test-*.php
-            **/debug-*.php
-          dangerous-clean-slate: false
