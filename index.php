@@ -15,9 +15,9 @@ if (isset($_GET['logout'])) {
     exit;
 }
 
-// Busca todos os PDFs
-$stmt = $pdo->query("SELECT * FROM pdfs ORDER BY created_at DESC");
-$pdfs = $stmt->fetchAll();
+// Busca todos os posts
+$stmt = $pdo->query("SELECT * FROM posts ORDER BY created_at DESC");
+$posts = $stmt->fetchAll();
 
 // Verifica se o usuário tem assinatura ativa
 $temAssinatura = false;
@@ -285,6 +285,9 @@ mb_regex_encoding('UTF-8');
                         <a class="nav-link" href="perfil.php">Perfil</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="admin-posts.php">Novo Post</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="assinatura.php">Assinatura</a>
                     </li>
                     <li class="nav-item">
@@ -302,11 +305,11 @@ mb_regex_encoding('UTF-8');
 
     <div class="header">
         <div class="container">
-            <h1>Bem-vinda à Maternidade Conectada</h1>
-            <p>Seu espaço de apoio e informação para uma gestação saudável e tranquila</p>
+            <h1>🚀 Bem-vinda à Maternidade Conectada</h1>
+            <p><strong>O segredo das mães que vivem uma gestação tranquila, segura e cheia de informação está aqui.</strong></p>
             <div class="mt-4">
-                <h3>Assinatura Mensal por R$ 49,00</h3>
-                <p>Acesso completo a todos os materiais de apoio</p>
+                <h3 style="color: var(--white); font-weight: bold; text-shadow: 0 2px 8px rgba(0,0,0,0.12);">Acesso VIP por apenas R$ 39/mês após 7 dias grátis</h3>
+                <p><span style="color: var(--white); font-weight: 500; text-shadow: 0 2px 8px rgba(0,0,0,0.12);">Transforme sua experiência de maternidade com conteúdos exclusivos que você não encontra no Google!</span></p>
             </div>
         </div>
     </div>
@@ -315,22 +318,27 @@ mb_regex_encoding('UTF-8');
         <?php if (isset($_SESSION['user_email']) && $temAssinatura): ?>
         <div class="subscription-banner">
             <h4><i class="fas fa-check-circle"></i> Assinatura Ativa</h4>
-            <p>Você tem acesso completo a todos os materiais!</p>
+            <p>Parabéns! Você faz parte do grupo seleto de mães que têm acesso total ao melhor conteúdo de maternidade do Brasil. Aproveite!</p>
         </div>
         <?php endif; ?>
 
         <?php if (!$temAssinatura): ?>
-            <div class="alert alert-warning" role="alert">
+            <div class="alert alert-warning" role="alert" style="font-size:1.1rem;">
                 <h5 class="alert-heading">🔒 Conteúdo Restrito</h5>
-                <p>Para acessar todos os materiais, você precisa de uma assinatura ativa.</p>
+                <p><strong>Você está a um passo de desbloquear TODO o conhecimento que pode transformar sua maternidade.</strong></p>
+                <ul>
+                  <li>🎁 <b>7 dias grátis</b> para acessar tudo sem compromisso</li>
+                  <li>💎 Materiais exclusivos, atualizados e práticos</li>
+                  <li>👩‍⚕️ Suporte de especialistas e comunidade acolhedora</li>
+                  <li>🚫 Cancelamento fácil, sem burocracia</li>
+                </ul>
                 <hr>
-                <p class="mb-0">
-                    <strong>🎁 Trial Gratuito:</strong> Experimente por 7 dias sem compromisso!
-                    <br>
-                    <strong>💰 Preço:</strong> R$ 39/mês após o trial
+                <p class="mb-0" style="color: var(--primary-color); font-weight: 600;">
+                  <span style="font-size:1.2em;">⚠️ Vagas limitadas para o trial gratuito!</span><br>
+                  <span>Não perca a chance de ser uma mãe ainda mais preparada. <b>Garanta seu acesso agora!</b></span>
                 </p>
-                <a href="assinatura.php" class="btn btn-primary mt-2">
-                    🚀 Começar Trial Gratuito
+                <a href="assinatura.php" class="btn btn-primary mt-2" style="font-size:1.1rem; font-weight:600;">
+                    🚀 Quero desbloquear meu acesso VIP
                 </a>
             </div>
         <?php else: ?>
@@ -338,11 +346,10 @@ mb_regex_encoding('UTF-8');
                 <?php $diasRestantes = getTrialDaysLeft($_SESSION['user_email'], $pdo); ?>
                 <div class="alert alert-info" role="alert">
                     <h5 class="alert-heading">🎁 Trial Ativo</h5>
-                    <p>Você tem <strong><?php echo $diasRestantes; ?> dias</strong> restantes no seu trial gratuito.</p>
+                    <p>Você tem <strong><?php echo $diasRestantes; ?> dias</strong> restantes no seu trial gratuito. Aproveite ao máximo!</p>
                     <hr>
                     <p class="mb-0">
-                        Após o trial, será cobrado R$ 39/mês automaticamente. 
-                        <a href="perfil.php" class="alert-link">Gerencie sua assinatura aqui</a>.
+                        Após o trial, será cobrado R$ 39/mês automaticamente. <a href="perfil.php" class="alert-link">Gerencie sua assinatura aqui</a>.
                     </p>
                 </div>
             <?php else: ?>
@@ -356,32 +363,29 @@ mb_regex_encoding('UTF-8');
             <?php endif; ?>
         <?php endif; ?>
 
-        <h2 class="section-title">Materiais de Apoio</h2>
-        <div class="row">
-            <?php foreach ($pdfs as $pdf): ?>
-            <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title"><?php echo cleanText($pdf['titulo']); ?></h5>
-                        <p class="card-text"><?php echo cleanText($pdf['descricao']); ?></p>
-                        
-                        <?php if (isset($_SESSION['user_email'])): ?>
-                            <?php if ($temAssinatura): ?>
-                                <!-- Usuário com assinatura ativa -->
-                                <button class="btn btn-success" onclick="openPdfModal('pdfs/<?php echo cleanText($pdf['arquivo']); ?>', '<?php echo cleanText($pdf['titulo']); ?>')">
-                                    <i class="fas fa-check"></i> Acessar Material
-                                </button>
-                            <?php else: ?>
-                                <!-- Usuário sem assinatura -->
-                                <a href="assinatura.php" class="btn btn-primary">
-                                    Assinar para Acessar
-                                </a>
-                            <?php endif; ?>
+        <h2 class="section-title">Feed de Conteúdo Exclusivo</h2>
+        <div class="row justify-content-center">
+            <?php foreach ($posts as $post): ?>
+            <div class="col-12 col-md-6 col-lg-4 mb-5 d-flex align-items-stretch">
+                <div class="card h-100" style="border-radius: 24px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.10); padding: 0;">
+                    <div style="width: 100%; aspect-ratio: 9/16; background: #000;">
+                        <img src="<?php echo htmlspecialchars($post['imagem'], ENT_QUOTES, 'UTF-8'); ?>" alt="Imagem do post" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                    </div>
+                    <div class="card-body d-flex flex-column" style="padding: 1.5rem 1rem 1.5rem 1rem;">
+                        <h5 class="card-title" style="font-size: 1.3rem; font-weight: 600; color: var(--primary-color); margin-bottom: 0.5rem; text-align: center;">
+                            <?php echo htmlspecialchars($post['titulo'], ENT_QUOTES, 'UTF-8'); ?>
+                        </h5>
+                        <div class="card-subtitle mb-2 text-muted" style="font-size: 1.1rem; text-align: center; font-weight: 500;">
+                            <?php echo htmlspecialchars($post['subtitulo'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
+                        </div>
+                        <p class="card-text" style="font-size: 1.1rem; color: var(--text-color); text-align: center; max-height: 4.5em; overflow: hidden; text-overflow: ellipsis; white-space: normal;">
+                            <?php echo nl2br(htmlspecialchars($post['texto'], ENT_QUOTES, 'UTF-8')); ?>
+                        </p>
+                        <?php if (isset($_SESSION['user_email']) && $temAssinatura): ?>
+                            <button class="btn btn-primary mt-2 w-100" data-bs-toggle="modal" data-bs-target="#modalPost<?php echo $post['id']; ?>">Ler</button>
                         <?php else: ?>
-                            <!-- Usuário não logado -->
-                            <a href="login.php" class="btn btn-primary">
-                                Faça login para assinar
-                            </a>
+                            <button class="btn btn-secondary mt-2 w-100" disabled title="Assine para ler o conteúdo completo">Ler</button>
+                            <div class="text-center mt-2" style="font-size:0.95em; color:var(--primary-color); font-weight:500;">Assine para desbloquear a leitura</div>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -404,6 +408,28 @@ mb_regex_encoding('UTF-8');
             </div>
         </div>
     </div>
+
+    <!-- Modal de Leitura do Post -->
+    <?php foreach ($posts as $post): ?>
+    <div class="modal fade" id="modalPost<?php echo $post['id']; ?>" tabindex="-1" aria-labelledby="modalPostLabel<?php echo $post['id']; ?>" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header" style="background: var(--primary-color); color: #fff;">
+            <div>
+              <h5 class="modal-title mb-1" id="modalPostLabel<?php echo $post['id']; ?>"><?php echo htmlspecialchars($post['titulo'], ENT_QUOTES, 'UTF-8'); ?></h5>
+              <div class="card-subtitle" style="font-size: 1.1rem; color: #ffe66d; font-weight: 500;">
+                <?php echo htmlspecialchars($post['subtitulo'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
+              </div>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+          </div>
+          <div class="modal-body" style="font-size: 1.35rem; color: var(--text-color); line-height: 1.7; max-height: 70vh; overflow-y: auto;">
+            <?php echo nl2br(htmlspecialchars($post['texto'], ENT_QUOTES, 'UTF-8')); ?>
+          </div>
+        </div>
+      </div>
+    </div>
+    <?php endforeach; ?>
 
     <footer>
         <div class="container text-center">

@@ -64,6 +64,17 @@ CREATE TABLE IF NOT EXISTS pagamentos_recorrentes (
     INDEX idx_status (status)
 );
 
+-- Tabela de posts (imagem + texto, formato vertical tipo Reels)
+CREATE TABLE IF NOT EXISTS posts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    titulo VARCHAR(255) NOT NULL,
+    texto TEXT NOT NULL,
+    imagem VARCHAR(255) NOT NULL, -- Caminho do arquivo ou URL
+    usuario_email VARCHAR(255), -- Autor do post (opcional)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
 -- Inserir usuário de teste
 INSERT INTO usuarios (nome, email, senha) VALUES 
 ('Usuário Teste', 'teste@teste.com', '123456')
