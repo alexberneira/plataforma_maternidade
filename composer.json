@@ -1,0 +1,17 @@
+{
+    "name": "plataforma-maternidade/stripe-integration",
+    "description": "Integração com Stripe para a Plataforma de Maternidade",
+    "type": "project",
+    "require": {
+        "php": ">=7.4",
+        "stripe/stripe-php": "^17.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true
+    }
+}

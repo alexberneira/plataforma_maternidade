@@ -5,6 +5,7 @@ mb_http_output('UTF-8');
 mb_regex_encoding('UTF-8');
 
 require_once 'init.php';
+require_once 'stripe-config.php';
 
 // Verifica se o usuário está logado
 if (!isset($_SESSION['user_email'])) {
@@ -19,18 +20,18 @@ if (isset($_GET['logout'])) {
     exit;
 }
 
-// Busca os PDFs
+// Busca todos os PDFs
 $stmt = $pdo->query("SELECT * FROM pdfs ORDER BY created_at DESC");
-$pdfs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$pdfs = $stmt->fetchAll();
 
-// Função para limpar e converter texto
+// Verifica se o usuário tem assinatura ativa
+$temAssinatura = false;
+if (isset($_SESSION['user_email'])) {
+    $temAssinatura = hasActiveSubscription($_SESSION['user_email'], $pdo);
+}
+
+// Função para limpar texto
 function cleanText($text) {
-    // Converte para UTF-8 se não estiver
-    if (!mb_check_encoding($text, 'UTF-8')) {
-        $text = mb_convert_encoding($text, 'UTF-8', 'auto');
-    }
-    // Remove caracteres inválidos
-    $text = preg_replace('/[\x00-\x1F\x7F]/u', '', $text);
     return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
 }
 ?>
@@ -284,6 +285,9 @@ function cleanText($text) {
                         <a class="nav-link" href="perfil.php">Perfil</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="assinatura.php">Assinatura</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="logout.php">Sair</a>
                     </li>
                     <?php else: ?>
@@ -300,10 +304,21 @@ function cleanText($text) {
         <div class="container">
             <h1>Bem-vinda à Maternidade Conectada</h1>
             <p>Seu espaço de apoio e informação para uma gestação saudável e tranquila</p>
+            <div class="mt-4">
+                <h3>Assinatura Mensal por R$ 49,00</h3>
+                <p>Acesso completo a todos os materiais de apoio</p>
+            </div>
         </div>
     </div>
 
     <div class="container">
+        <?php if (isset($_SESSION['user_email']) && $temAssinatura): ?>
+        <div class="subscription-banner">
+            <h4><i class="fas fa-check-circle"></i> Assinatura Ativa</h4>
+            <p>Você tem acesso completo a todos os materiais!</p>
+        </div>
+        <?php endif; ?>
+
         <h2 class="section-title">Materiais de Apoio</h2>
         <div class="row">
             <?php foreach ($pdfs as $pdf): ?>
@@ -312,7 +327,25 @@ function cleanText($text) {
                     <div class="card-body">
                         <h5 class="card-title"><?php echo cleanText($pdf['titulo']); ?></h5>
                         <p class="card-text"><?php echo cleanText($pdf['descricao']); ?></p>
-                        <button class="btn btn-primary" onclick="openPdfModal('pdfs/<?php echo cleanText($pdf['arquivo']); ?>', '<?php echo cleanText($pdf['titulo']); ?>')">Acessar Material</button>
+                        
+                        <?php if (isset($_SESSION['user_email'])): ?>
+                            <?php if ($temAssinatura): ?>
+                                <!-- Usuário com assinatura ativa -->
+                                <button class="btn btn-success" onclick="openPdfModal('pdfs/<?php echo cleanText($pdf['arquivo']); ?>', '<?php echo cleanText($pdf['titulo']); ?>')">
+                                    <i class="fas fa-check"></i> Acessar Material
+                                </button>
+                            <?php else: ?>
+                                <!-- Usuário sem assinatura -->
+                                <a href="assinatura.php" class="btn btn-primary">
+                                    Assinar para Acessar
+                                </a>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <!-- Usuário não logado -->
+                            <a href="login.php" class="btn btn-primary">
+                                Faça login para assinar
+                            </a>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>

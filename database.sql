@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS videos (
     data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabela de PDFs
+-- Tabela de PDFs (sem preço individual)
 CREATE TABLE IF NOT EXISTS pdfs (
     id INT AUTO_INCREMENT PRIMARY KEY,
     titulo VARCHAR(255) NOT NULL,
@@ -35,12 +35,60 @@ CREATE TABLE IF NOT EXISTS pdfs (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Tabela de assinaturas
+CREATE TABLE IF NOT EXISTS assinaturas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_email VARCHAR(100) NOT NULL,
+    stripe_subscription_id VARCHAR(255) UNIQUE,
+    status ENUM('active', 'canceled', 'past_due', 'unpaid', 'incomplete') DEFAULT 'incomplete',
+    valor DECIMAL(10,2) DEFAULT 49.00,
+    data_inicio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    data_fim TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_usuario_email (usuario_email),
+    INDEX idx_status (status),
+    INDEX idx_stripe_subscription (stripe_subscription_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tabela de pagamentos recorrentes
+CREATE TABLE IF NOT EXISTS pagamentos_recorrentes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    stripe_invoice_id VARCHAR(255) UNIQUE,
+    stripe_subscription_id VARCHAR(255),
+    usuario_email VARCHAR(100),
+    valor DECIMAL(10,2) NOT NULL,
+    status ENUM('paid', 'open', 'void', 'uncollectible') DEFAULT 'open',
+    data_vencimento DATE,
+    data_pagamento TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_stripe_invoice (stripe_invoice_id),
+    INDEX idx_stripe_subscription (stripe_subscription_id),
+    INDEX idx_usuario_email (usuario_email),
+    INDEX idx_status (status),
+    FOREIGN KEY (stripe_subscription_id) REFERENCES assinaturas(stripe_subscription_id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tabela de compras (para controlar acesso aos PDFs)
+CREATE TABLE IF NOT EXISTS compras (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_email VARCHAR(100) NOT NULL,
+    pdf_id INT NOT NULL,
+    payment_intent_id VARCHAR(255),
+    status ENUM('paid', 'pending', 'failed') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_user_pdf (usuario_email, pdf_id),
+    INDEX idx_usuario_email (usuario_email),
+    INDEX idx_pdf_id (pdf_id),
+    FOREIGN KEY (pdf_id) REFERENCES pdfs(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Inserir usuários de teste
 INSERT INTO usuarios (nome, email, senha, ativo) VALUES 
 ('Usuário Teste', 'teste@exemplo.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', TRUE),
 ('Alex Berneira', 'alexberneira@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', TRUE);
 
--- Inserir PDFs de exemplo
+-- Inserir PDFs de exemplo (sem preços individuais)
 INSERT INTO pdfs (titulo, descricao, arquivo) VALUES 
 ('Guia de Pré-Natal', 'Orientações completas sobre o pré-natal', 'pre-natal.pdf'),
 ('Amamentação', 'Guia completo sobre amamentação', 'amamentacao.pdf'),
