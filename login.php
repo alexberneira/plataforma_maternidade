@@ -1,5 +1,4 @@
 <?php
-session_start();
 require_once 'init.php';
 
 // Se já estiver logado, redireciona para a página principal

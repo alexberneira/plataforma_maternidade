@@ -1,9 +1,4 @@
 <?php
-// Configurações de encoding
-mb_internal_encoding('UTF-8');
-mb_http_output('UTF-8');
-mb_regex_encoding('UTF-8');
-
 require_once 'init.php';
 require_once 'stripe-config.php';
 
@@ -34,6 +29,11 @@ if (isset($_SESSION['user_email'])) {
 function cleanText($text) {
     return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
 }
+
+// Configurações de encoding
+mb_internal_encoding('UTF-8');
+mb_http_output('UTF-8');
+mb_regex_encoding('UTF-8');
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">

@@ -1,13 +1,13 @@
 <?php
+// Inicia a sessão ANTES de qualquer saída
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 // Configurações de encoding
 mb_internal_encoding('UTF-8');
 mb_http_output('UTF-8');
 mb_regex_encoding('UTF-8');
-
-// Inicia a sessão se ainda não estiver ativa
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
 
 // Configurações do banco de dados
 $host = 'db';  // Nome do serviço no docker-compose
