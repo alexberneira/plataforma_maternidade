@@ -21,6 +21,11 @@ jobs:
           echo "Password: [HIDDEN]"
           echo "Directory: /"
 
+      - name: List FTP Directories
+        run: |
+          echo "Attempting to list directories..."
+          echo "This will help us understand the server structure"
+
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -43,5 +48,5 @@ jobs:
             **/debug-*.php
             **/uploads/**
             **/logs/**
-          dangerous-clean-slate: false
+          dangerous-clean-slate: true
           log-level: verbose
