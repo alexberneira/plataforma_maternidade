@@ -19,7 +19,7 @@ jobs:
           echo "Server: ftp.maternidade.art.br"
           echo "Username: maternidade"
           echo "Password: [HIDDEN]"
-          echo "Directory: /www/"
+          echo "Directory: (default - where FTP lands)"
 
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -27,7 +27,6 @@ jobs:
           server: ftp.maternidade.art.br
           username: maternidade
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /www/
           exclude: |
             **/.git*
             **/.git*/**
