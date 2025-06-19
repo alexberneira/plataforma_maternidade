@@ -35,3 +35,4 @@ jobs:
             **/test-*.php
             **/debug-*.php
           dangerous-clean-slate: false
+          log-level: verbose
