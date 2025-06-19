@@ -42,5 +42,20 @@ jobs:
             **/debug-*.php
             **/uploads/**
             **/logs/**
+            **/admin-posts.php
+            **/assinatura.php
+            **/composer.json
+            **/composer.lock
+            **/database.sql
+            **/error.php
+            **/index.php
+            **/init.php
+            **/LICENSE
+            **/login.php
+            **/logout.php
+            **/perfil.php
+            **/stripe-config.php
+            **/success.php
+            **/webhook.php
           dangerous-clean-slate: false
           log-level: verbose
