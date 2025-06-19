@@ -19,4 +19,20 @@ jobs:
           server: ftp.maternidade.art.br
           username: maternidade
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /www/ # ou a pasta raiz do KingHost
+          server-dir: /www/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/.github/**
+            **/README.md
+            **/Dockerfile
+            **/docker-compose.yml
+            **/deploy.sh
+            **/TRIAL_SYSTEM.md
+            **/temp.sql
+            **/fix_encoding.sql
+            **/test-*.php
+            **/debug-*.php
+            **/logs/**
+          dangerous-clean-slate: false
