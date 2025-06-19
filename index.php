@@ -319,6 +319,43 @@ mb_regex_encoding('UTF-8');
         </div>
         <?php endif; ?>
 
+        <?php if (!$temAssinatura): ?>
+            <div class="alert alert-warning" role="alert">
+                <h5 class="alert-heading">🔒 Conteúdo Restrito</h5>
+                <p>Para acessar todos os materiais, você precisa de uma assinatura ativa.</p>
+                <hr>
+                <p class="mb-0">
+                    <strong>🎁 Trial Gratuito:</strong> Experimente por 7 dias sem compromisso!
+                    <br>
+                    <strong>💰 Preço:</strong> R$ 39/mês após o trial
+                </p>
+                <a href="assinatura.php" class="btn btn-primary mt-2">
+                    🚀 Começar Trial Gratuito
+                </a>
+            </div>
+        <?php else: ?>
+            <?php if (isInTrial($_SESSION['user_email'], $pdo)): ?>
+                <?php $diasRestantes = getTrialDaysLeft($_SESSION['user_email'], $pdo); ?>
+                <div class="alert alert-info" role="alert">
+                    <h5 class="alert-heading">🎁 Trial Ativo</h5>
+                    <p>Você tem <strong><?php echo $diasRestantes; ?> dias</strong> restantes no seu trial gratuito.</p>
+                    <hr>
+                    <p class="mb-0">
+                        Após o trial, será cobrado R$ 39/mês automaticamente. 
+                        <a href="perfil.php" class="alert-link">Gerencie sua assinatura aqui</a>.
+                    </p>
+                </div>
+            <?php else: ?>
+                <div class="alert alert-success" role="alert">
+                    <h5 class="alert-heading">✅ Assinatura Ativa</h5>
+                    <p>Sua assinatura está ativa e você tem acesso completo a todos os materiais!</p>
+                    <a href="perfil.php" class="btn btn-outline-success btn-sm">
+                        Gerenciar Assinatura
+                    </a>
+                </div>
+            <?php endif; ?>
+        <?php endif; ?>
+
         <h2 class="section-title">Materiais de Apoio</h2>
         <div class="row">
             <?php foreach ($pdfs as $pdf): ?>
