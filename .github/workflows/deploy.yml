@@ -19,7 +19,7 @@ jobs:
           echo "Server: ftp.web1122.kinghost.net"
           echo "Username: maternidade"
           echo "Password: [HIDDEN]"
-          echo "Directory: /home/maternidade"
+          echo "Directory: /home/maternidade/"
 
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -27,7 +27,7 @@ jobs:
           server: ftp.web1122.kinghost.net
           username: maternidade
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /home/maternidade
+          server-dir: /home/maternidade/
           exclude: |
             **/.git*
             **/.git*/**
