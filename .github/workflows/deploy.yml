@@ -16,18 +16,18 @@ jobs:
       - name: Test FTP Connection
         run: |
           echo "Testing FTP connection..."
-          echo "Server: ftp.maternidade.art.br:21"
+          echo "Server: ftp.web1122.kinghost.net"
           echo "Username: maternidade"
           echo "Password: [HIDDEN]"
-          echo "Directory: /www/"
+          echo "Directory: /home/maternidade"
 
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server: ftp.maternidade.art.br:21
+          server: ftp.web1122.kinghost.net
           username: maternidade
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /www/
+          server-dir: /home/maternidade
           exclude: |
             **/.git*
             **/.git*/**
