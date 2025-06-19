@@ -43,5 +43,6 @@ jobs:
             **/debug-*.php
             **/uploads/**
             **/logs/**
+            **/admin-posts.php
           dangerous-clean-slate: false
           log-level: verbose
