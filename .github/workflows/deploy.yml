@@ -16,7 +16,7 @@ jobs:
       - name: Test FTP Connection
         run: |
           echo "Testing FTP connection..."
-          echo "Server: ftp.maternidade.art.br"
+          echo "Server: ftp.maternidade.art.br:21"
           echo "Username: maternidade"
           echo "Password: [HIDDEN]"
           echo "Directory: /www/"
@@ -24,7 +24,7 @@ jobs:
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server: ftp.maternidade.art.br
+          server: ftp.maternidade.art.br:21
           username: maternidade
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: /www/
